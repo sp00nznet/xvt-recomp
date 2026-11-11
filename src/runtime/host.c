@@ -728,8 +728,13 @@ static void shim_mciSendCommandA(void) {
         mci = m ? (mci_t)GetProcAddress(m, "mciSendCommandA") : NULL;
         if (!mci) mci = mciSendCommandA;
     }
+    /* One call at a time: the Steam edition's WIN32.dll is not thread-safe, and
+     * with the machine lock released two game threads could meet in it (XvT
+     * corrupted the heap in its waveOut calls, about one run in four). */
+    static SRWLOCK one = SRWLOCK_INIT;
     MCIERROR r;
-    UNLOCKED(r = mci(ARG(0), ARG(1), ARG(2), ARG(3)));
+    DWORD a0 = ARG(0), a1 = ARG(1), a2 = ARG(2), a3 = ARG(3);
+    UNLOCKED(AcquireSRWLockExclusive(&one); r = mci(a0, a1, a2, a3); ReleaseSRWLockExclusive(&one));
     if (g_sound_log) printf("[sound] mci %u msg %04X flags %08X -> %u\n", ARG(0), ARG(1), ARG(2), (unsigned)r);
     g_eax = r;
     g_esp += 4 + 4 * 4;

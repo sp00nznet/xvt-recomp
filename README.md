@@ -20,20 +20,24 @@ You supply your own copy of the game. Nothing from it is in this repo.
 - **X-Wing vs TIE Fighter** (`xvtrecomp.exe`): boots, plays the intro movie
   and the credits, runs the front end (pilot roster, Fly Solo, Training
   Exercises, briefing, craft selection) and flies Training mission 1, Gunnery
-  Training, in the Z-95 Headhunter's cockpit.
+  Training, in the Z-95 Headhunter's cockpit. Every single-player mode
+  reaches flight: Training, Melee, Tournament, Combat Engagements and Battles.
 - **Balance of Power** (`boprecomp.exe`): the expansion is its own build of
   the game, in its own folder, lifted separately (4993 functions, no errors).
   It runs the v2.0 front end, plays its Smacker movies and flies the same
-  training mission.
+  training mission, and its Campaigns mode plays the opening crawl of
+  Spreading the Rebellion and flies its first mission.
 
 Both draw the game's 3D hardware mode with Direct3D 11 at the window's
-resolution. Not yet checked: Melee, Tournament, Combat, the Balance of Power
-campaigns, multiplayer, and whole missions.
+resolution. Not yet checked: multiplayer, and missions flown to the end.
 
 ![In flight](docs/screenshots/flight.png)
 ![Craft selection](docs/screenshots/craft.png)
 ![Balance of Power: pilot roster, v2.0](docs/screenshots/bop_pilots.png)
 ![Balance of Power in flight](docs/screenshots/bop_flight.png)
+![Melee in the X-Wing](docs/screenshots/melee.png)
+![Combat Engagement briefing](docs/screenshots/combat_briefing.png)
+![Balance of Power campaign, mission 1](docs/screenshots/bop_campaign.png)
 
 ## The remaster
 
@@ -89,6 +93,7 @@ Everything in TIE Fighter's table, and:
 | The 3D hardware mode is switched on at start | `use_3d_hardware1`/`2` and `bilinear1`/`2` in `Config.cfg` (Balance of Power: `config2.cfg`), and a `video.cfg` naming the card, which the launcher would write; F10 switches back to software |
 | A frame the game does not clear starts cleared, depth at the far plane | XvT never clears through the viewport, as a card of the day began each frame cleared. The far plane follows the game's depth test: 1.0 for 1.1's LESS, 0.0 for Balance of Power's GREATER |
 | `SuspendThread` keeps the machine lock | the movie player suspends its decoder thread around every frame; called unlocked, it could catch that thread holding the lock, and the intro hung on its first frame |
+| The music DLL is called by one thread at a time | `WIN32.dll` is not thread-safe; two game threads meeting in it corrupted the heap about one run in four |
 | Balance of Power runs in `game\BalanceOfPower` | the Steam launcher starts its executable there; it reads its own `config2.cfg`, `video.cfg` and data |
 
 ## Test switches
