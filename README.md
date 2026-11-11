@@ -12,7 +12,13 @@ You supply your own copy of the game. Nothing from it is in this repo.
 
 ## Status
 
-**Early.** Lifts clean, boots, plays the intro movie and the credits.
+**Alpha.** Flies. Boots, plays the intro movie and the credits, runs the
+front end (pilot roster, Fly Solo, Training Exercises, briefing, craft
+selection) and flies Training mission 1, Gunnery Training, in the Z-95
+Headhunter's cockpit. The 3D is the game's software renderer so far.
+
+![In flight](docs/screenshots/flight.png)
+![Craft selection](docs/screenshots/craft.png)
 
 ## Step by step
 
@@ -39,6 +45,7 @@ Everything in TIE Fighter's table, and:
 |---|---|
 | The CD-music calls go to the Steam edition's `WIN32.dll` | X-Wing and TIE ship the same thing as `MUSIC.dll` |
 | Writes to the front buffer of a flip chain are presented | the movie player and front end draw there, which a real card shows at once |
+| `SuspendThread` keeps the machine lock | the movie player suspends its decoder thread around every frame; called unlocked, it could catch that thread holding the lock, and the intro hung on its first frame |
 
 ## License
 

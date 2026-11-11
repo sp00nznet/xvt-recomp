@@ -1,0 +1,10 @@
+The test run that flies Training mission 1 (Gunnery Training, Z-95 Headhunter):
+
+build\xvtrecomp.exe --run --watchdog 130 --keys "5:esc,on:credits.txt,3:esc,on:fronttxt.txt,4:move:470:125,5:click:470:125,8:move:205:22,9:click:205:22,on:1TA01BF.TIE,4:move:37:437,5:click:37:437,15:click:37:437,23:click:37:437,31:click:37:437,45:shot=work/flight.bmp"
+
+Esc ends the intro movie, which leaves the credits up until a key; a second
+Esc goes to the front end (fronttxt.txt). The first pilot in the roster is at
+470,125 (an existing pilot: create one first); Fly Solo is at 205,22 and opens
+Training Exercises with Gunnery Training chosen (1TA01BF.TIE). The bottom-left
+button (37,437) is Begin, then Next through the briefing to Craft Selection,
+then Fly.
