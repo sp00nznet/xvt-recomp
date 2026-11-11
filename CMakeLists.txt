@@ -21,41 +21,49 @@ endif()
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 set(PCRECOMP "${CMAKE_SOURCE_DIR}/../pcrecomp" CACHE PATH "pcrecomp checkout")
-file(GLOB GEN_SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/recomp/gen/*.c")
-if(NOT GEN_SOURCES)
-  message(FATAL_ERROR "src/recomp/gen is empty -- run `py -3 run_lift.py --all` first")
-endif()
+# One host per lifted build: xvt (the game, src/recomp/gen) and bop (Balance of
+# Power's own Z_XVT__.EXE, src/recomp/gen_bop, built once it is lifted).
+function(game_host T GEN OUT)
+  file(GLOB SRC CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/${GEN}/*.c")
+  add_executable(${T}
+    src/runtime/host.c
+    src/runtime/softdd.c
+    src/runtime/gpu.c
+    src/runtime/d3d.c
+    src/runtime/settings.c
+    src/runtime/flight.c
+    src/runtime/sound.c
+    ${PCRECOMP}/runtime/native32/native32.c
+    ${PCRECOMP}/runtime/recomp32/image_loader.c
+    ${PCRECOMP}/runtime/recomp32/recomp_trace.c
+    ${SRC}
+  )
+  target_include_directories(${T} PRIVATE
+    src/runtime ${GEN} ${PCRECOMP}/runtime/native32 ${PCRECOMP}/runtime/recomp32)
+  target_compile_definitions(${T} PRIVATE RECOMP_RETADDR=0u _CRT_SECURE_NO_WARNINGS
+                                              RECOMP_FLAT_MEMORY RECOMP_LOCAL_REGS)
+  # Linked high and not relocatable, so the guest's 0x00400000..0x009D5000 is free.
+  target_link_options(${T} PRIVATE /BASE:0x60000000 /FIXED:NO /DYNAMICBASE:NO
+                                         /NXCOMPAT /LARGEADDRESSAWARE /STACK:0x1000000
+                                         /MANIFESTUAC:NO /MANIFEST:NO /MAP)
+  set(GEN_OPT "/O2" CACHE STRING "optimisation for the generated C")
+  set_source_files_properties(${SRC} PROPERTIES COMPILE_OPTIONS "/w;${GEN_OPT}")
+  set_source_files_properties(src/runtime/host.c PROPERTIES COMPILE_OPTIONS "/W3")
+  target_link_libraries(${T} PRIVATE user32 gdi32 kernel32 ole32 uuid dxguid winmm ws2_32 dinput8 dsound shlwapi d3d11 dxgi windowscodecs xinput)
 
-add_executable(xvt
-  src/runtime/host.c
-  src/runtime/softdd.c
-  src/runtime/gpu.c
-  src/runtime/d3d.c
-  src/runtime/settings.c
-  src/runtime/flight.c
-  src/runtime/sound.c
-  ${PCRECOMP}/runtime/native32/native32.c
-  ${PCRECOMP}/runtime/recomp32/image_loader.c
-  ${PCRECOMP}/runtime/recomp32/recomp_trace.c
-  ${GEN_SOURCES}
-)
-target_include_directories(xvt PRIVATE
-  src/runtime src/recomp/gen ${PCRECOMP}/runtime/native32 ${PCRECOMP}/runtime/recomp32)
-target_compile_definitions(xvt PRIVATE RECOMP_RETADDR=0u _CRT_SECURE_NO_WARNINGS
-                                            RECOMP_FLAT_MEMORY RECOMP_LOCAL_REGS)
-# Linked high and not relocatable, so the guest's 0x00400000..0x009D5000 is free.
-target_link_options(xvt PRIVATE /BASE:0x60000000 /FIXED:NO /DYNAMICBASE:NO
-                                       /NXCOMPAT /LARGEADDRESSAWARE /STACK:0x1000000
-                                       /MANIFESTUAC:NO /MANIFEST:NO /MAP)
-set(GEN_OPT "/O2" CACHE STRING "optimisation for the generated C")
-set_source_files_properties(${GEN_SOURCES} PROPERTIES COMPILE_OPTIONS "/w;${GEN_OPT}")
-set_source_files_properties(src/runtime/host.c PROPERTIES COMPILE_OPTIONS "/W3")
-target_link_libraries(xvt PRIVATE user32 gdi32 kernel32 ole32 uuid dxguid winmm ws2_32 dinput8 dsound shlwapi d3d11 dxgi windowscodecs xinput)
+  set_target_properties(${T} PROPERTIES OUTPUT_NAME ${OUT})
+  if(TF_TRACE)
+    target_compile_definitions(${T} PRIVATE RECOMP_TRACE=1)
+  endif()
+endfunction()
 
 option(TF_TRACE "record a ring buffer of lifted function entries" OFF)
-if(TF_TRACE)
-  target_compile_definitions(xvt PRIVATE RECOMP_TRACE=1)
+if(NOT EXISTS "${CMAKE_SOURCE_DIR}/src/recomp/gen")
+  message(FATAL_ERROR "src/recomp/gen is empty -- run `py -3 run_lift.py --all` first")
 endif()
-
-# The output name keeps Windows' compatibility database off the host.
-set_target_properties(xvt PROPERTIES OUTPUT_NAME xvtrecomp)
+# The output names keep Windows' compatibility database off the host.
+game_host(xvt src/recomp/gen xvtrecomp)
+if(EXISTS "${CMAKE_SOURCE_DIR}/src/recomp/gen_bop")
+  game_host(bop src/recomp/gen_bop boprecomp)
+  target_compile_definitions(bop PRIVATE XVT_BOP)
+endif()

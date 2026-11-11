@@ -939,8 +939,13 @@ static DWORD WINAPI watchdog(LPVOID unused) {
 }
 
 int main(int argc, char** argv) {
+#ifdef XVT_BOP   /* Balance of Power: its own build, run in its own folder */
+    const char* exe = "work\\BOP.EXE";
+    const char* game = "game\\BalanceOfPower";
+#else
     const char* exe = "work\\XVT.EXE";
     const char* game = "game";
+#endif
     char exe_full[MAX_PATH], game_full[MAX_PATH], guest_args[512] = "";
     int run = 0, sound = 0;
     setvbuf(stdout, NULL, _IONBF, 0);   /* a fault ends the run with TerminateProcess */
@@ -984,7 +989,13 @@ int main(int argc, char** argv) {
 
     native32_init();
     AddVectoredExceptionHandler(0, crash);
-    printf("X-Wing vs TIE Fighter recomp host\n  lifted functions in dispatch: %u\n", recomp_dispatch_count);
+    printf("X-Wing vs TIE Fighter%s recomp host\n  lifted functions in dispatch: %u\n",
+#ifdef XVT_BOP
+           ": Balance of Power",
+#else
+           "",
+#endif
+           recomp_dispatch_count);
 
     uint32_t span = native32_map(exe_full, IMAGE_BASE);
     if (!span) { fprintf(stderr, "cannot map %s at 0x%08X\n", exe_full, IMAGE_BASE); return 1; }

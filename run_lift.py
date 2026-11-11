@@ -6,6 +6,7 @@ Steam build after Steamless removed its SteamStub wrapper, catalogued by
 disasm32 into work/functions.json. The driver is TIE Fighter's (tiefighter-recomp).
 
     py -3 run_lift.py --all
+    py -3 run_lift.py --all --bop    # Balance of Power -> src/recomp/gen_bop/
     py -3 run_lift.py --roots 0x004A39FE
 """
 import argparse
@@ -38,6 +39,17 @@ MODULES = [
     (os.path.join(_HERE, 'work', 'xvt.exe'), os.path.join(_HERE, 'work', 'functions.json'),
      0x3443b997, 'Z_XVT__.EXE 1.10 from Steam, unwrapped by Steamless'),
 ]
+
+# Balance of Power is its own build of the game (BalanceOfPower\Z_XVT__.EXE,
+# 2.0), lifted to its own folder and linked into its own host (CMakeLists.txt).
+if '--bop' in sys.argv:
+    sys.argv.remove('--bop')
+    OUT = os.path.join(_HERE, 'src', 'recomp', 'gen_bop')
+    STATS = os.path.join(_HERE, 'work', 'bop_lift_stats.json')
+    MODULES = [
+        (os.path.join(_HERE, 'work', 'bop.exe'), os.path.join(_HERE, 'work', 'bop_functions.json'),
+         0x34763fd4, 'BalanceOfPower\Z_XVT__.EXE 2.0 from Steam, unwrapped by Steamless'),
+    ]
 
 # Entries the catalog does not find (seed_from_log.py from runs).
 RUN_SEEDS = []

@@ -42,6 +42,7 @@ original/
 # Generated from the binary, never committed: the lifted C, the catalog and
 # every other analysis of Hod2.exe.
 src/recomp/gen/
+src/recomp/gen_bop/
 work/
 analysis/
 scratch/

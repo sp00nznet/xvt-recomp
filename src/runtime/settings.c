@@ -156,6 +156,7 @@ static void write_video_cfg(const char* path) {
 void settings_apply_prefs(void) {
     apply_cfg("Config.cfg");
     apply_cfg("BalanceOfPower\\config2.cfg");
+    apply_cfg("config2.cfg");   /* boprecomp runs in BalanceOfPower\ */
     write_video_cfg("video.cfg");
     write_video_cfg("BalanceOfPower\\Video.cfg");
 }
