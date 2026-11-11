@@ -345,7 +345,9 @@ static void open_frame(Surf* s) {
      * card of the day began each frame cleared): what the game did not clear
      * starts the frame clear, the depth at the far plane. */
     if ((g_cleared & 3) != 3)
-        gpu_clear(0, 0, s->w, s->h, !(g_cleared & 1), 0, !(g_cleared & 2), 1.0f);
+        gpu_clear(0, 0, s->w, s->h, !(g_cleared & 1), 0, !(g_cleared & 2),
+                  /* Balance of Power tests GREATER (nearer is larger): its far plane is 0 */
+                  g_st.zfunc == D3DCMP_GREATER || g_st.zfunc == D3DCMP_GREATEREQUAL ? 0.0f : 1.0f);
     gpu_background(s->bits, s->w, s->h, s->pitch, s->bpp, NULL);
     for (int y = 0; y < s->h; y++) {
         uint16_t* p = (uint16_t*)(s->bits + (size_t)y * s->pitch);

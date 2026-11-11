@@ -49,8 +49,10 @@ F10 (or right-click beside the picture), kept in `build\xvt.ini`:
 | **Mod files** | a file under `mods\files\` replaces the game's file at the same path, without changing the game's copy. |
 | **Flying without a joystick** | an Xbox pad, the mouse in flight, or the arrow keys. A real joystick is used when one is plugged in. |
 
-So far only the window and the high-resolution 3D have been checked in XvT
-(ROADMAP.md).
+Checked in both games with scripted runs: high-resolution 3D, CRT scaling,
+HD texture replacement and dumping, mod files, the virtual stick, and sound
+(effects through DirectSound, music through WIN32.dll). A real Xbox pad and
+mouse flying use the same code as X-Wing but have not been tried in XvT.
 
 ## Step by step
 
@@ -85,7 +87,7 @@ Everything in TIE Fighter's table, and:
 | The CD-music calls go to the Steam edition's `WIN32.dll` | X-Wing and TIE ship the same thing as `MUSIC.dll` |
 | Writes to the front buffer of a flip chain are presented | the movie player and front end draw there, which a real card shows at once |
 | The 3D hardware mode is switched on at start | `use_3d_hardware1`/`2` and `bilinear1`/`2` in `Config.cfg` (Balance of Power: `config2.cfg`), and a `video.cfg` naming the card, which the launcher would write; F10 switches back to software |
-| A frame the game does not clear starts cleared, depth at the far plane | XvT's depth test is LESS and it never clears through the viewport, as a card of the day began each frame cleared |
+| A frame the game does not clear starts cleared, depth at the far plane | XvT never clears through the viewport, as a card of the day began each frame cleared. The far plane follows the game's depth test: 1.0 for 1.1's LESS, 0.0 for Balance of Power's GREATER |
 | `SuspendThread` keeps the machine lock | the movie player suspends its decoder thread around every frame; called unlocked, it could catch that thread holding the lock, and the intro hung on its first frame |
 | Balance of Power runs in `game\BalanceOfPower` | the Steam launcher starts its executable there; it reads its own `config2.cfg`, `video.cfg` and data |
 

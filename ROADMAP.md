@@ -9,5 +9,6 @@
 - [ ] Balance of Power campaigns
 - [ ] Multiplayer (DirectPlay)
 - [x] Hero GIF
-- [ ] Check the rest of the remaster in XvT and BoP: scaling, HD textures, mod files, pad/mouse flying
+- [x] Remaster checked in XvT and BoP: scaling, HD textures, texture dump, mod files, virtual stick, sound
+- [ ] A real pad and mouse flying in XvT
 - [ ] Everything else on X-Wing's and TIE Fighter's remaster roadmaps
