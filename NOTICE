@@ -1,0 +1,8 @@
+TIE Fighter recomp
+
+A fork of the X-Wing recomp (https://github.com/sp00nznet/xwing-recomp): the
+same engine, host and remaster. That host derives from the Crazy Taxi recomp,
+softdd.c from the Beavis and Butt-head in Virtual Stupidity recomp; all run on
+pcrecomp's native32 runtime (https://github.com/sp00nznet/pcrecomp), all MIT.
+
+Star Wars: TIE Fighter is (c) Lucasfilm Ltd. No part of the game is included.
