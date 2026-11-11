@@ -101,22 +101,63 @@ void settings_menu(HWND w, int x, int y) {
 /* The game keeps its display mode in prefs.cfg (byte 0x1B: 0 320x200, 1 640x480x8,
  * 2 640x480x16, 3 3D hardware) but never writes a changed one back: the mode
  * is set there before the game reads it. */
-void settings_apply_prefs(void) {
-    /* TIE: foption.cfg is 0x3A bytes of options, then the display mode as a
-     * dword (0 320x200, 1 640x480x8, 2 640x480x16, 3 Direct3D). */
-    HANDLE f = CreateFileA("foption.cfg", GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
-    if (f == INVALID_HANDLE_VALUE) return;
-    unsigned char b[0x60];
-    DWORD n = 0;
-    if (ReadFile(f, b, sizeof b, &n, NULL) && n >= 0x3E) {
-        unsigned char want = g_hw3d ? 3 : 2;
-        if (b[0x3A] != want) {
-            b[0x3A] = want;
-            SetFilePointer(f, 0, NULL, FILE_BEGIN);
-            WriteFile(f, b, n, &n, NULL);
+/* One "key value" line of XvT's Config.cfg (text, one setting a line). */
+static void cfg_set(char* t, size_t cap, const char* key, const char* val) {
+    size_t kl = strlen(key);
+    for (char* l = t; *l; ) {
+        char* e = strchr(l, '\n');
+        size_t len = e ? (size_t)(e - l + 1) : strlen(l);
+        if (!strncmp(l, key, kl) && l[kl] == ' ') {
+            char line[128];
+            _snprintf(line, sizeof line, "%s %s\r\n", key, val);
+            size_t nl2 = strlen(line), rest = strlen(l + len);
+            if (strlen(t) - len + nl2 + 1 > cap) return;
+            memmove(l + nl2, l + len, rest + 1);
+            memcpy(l, line, nl2);
+            return;
         }
+        l += len;
+    }
+}
+
+/* XvT: the 3D hardware mode is "use_3d_hardware1" (single player) and
+ * "use_3d_hardware2" (multiplayer) in Config.cfg, and the card in video.cfg (a
+ * DirectDraw device GUID the launcher writes; softdd answers any). Balance of
+ * Power keeps the same in BalanceOfPower\config2.cfg and Video.cfg. */
+static void apply_cfg(const char* path) {
+    HANDLE f = CreateFileA(path, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+    if (f == INVALID_HANDLE_VALUE) return;
+    static char t[16384];
+    DWORD n = 0;
+    if (ReadFile(f, t, sizeof t - 256, &n, NULL)) {
+        t[n] = 0;
+        const char* v = g_hw3d ? "1" : "0";
+        cfg_set(t, sizeof t, "use_3d_hardware1", v);
+        cfg_set(t, sizeof t, "use_3d_hardware2", v);
+        cfg_set(t, sizeof t, "bilinear1", v);
+        cfg_set(t, sizeof t, "bilinear2", v);
+        SetFilePointer(f, 0, NULL, FILE_BEGIN);
+        WriteFile(f, t, (DWORD)strlen(t), &n, NULL);
+        SetEndOfFile(f);
     }
     CloseHandle(f);
+}
+
+static void write_video_cfg(const char* path) {
+    static const GUID dev = { 0x3dd1c0de, 0x0000, 0x4000, { 0x80, 0, 0, 0, 0, 0, 0, 0x01 } };
+    if (GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES) return;
+    HANDLE f = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_NEW, 0, NULL);
+    if (f == INVALID_HANDLE_VALUE) return;
+    DWORD n;
+    WriteFile(f, &dev, sizeof dev, &n, NULL);
+    CloseHandle(f);
+}
+
+void settings_apply_prefs(void) {
+    apply_cfg("Config.cfg");
+    apply_cfg("BalanceOfPower\\config2.cfg");
+    write_video_cfg("video.cfg");
+    write_video_cfg("BalanceOfPower\\Video.cfg");
 }
 
 int settings_key(HWND w, UINT vk, int alt) {
