@@ -34,6 +34,7 @@
 #include "settings.h"
 #include "flight.h"
 #include "sound.h"
+#include "dplay.h"
 
 extern const uint32_t tf_entry_va;  /* recomp_dispatch.c */
 
@@ -717,6 +718,16 @@ static void shim_DirectSoundCreate(void) {
     g_esp += 4 + 3 * 4;
 }
 
+/* ---- DirectPlay: the host's own (dplay.c), not Windows' ---- */
+static void shim_DirectPlayCreate(void) {   /* (sp guid, IDirectPlay**, outer) */
+    g_eax = (uint32_t)dplay_create((void**)(uintptr_t)ARG(1));
+    g_esp += 4 + 3 * 4;
+}
+static void shim_DirectPlayLobbyCreateA(void) {   /* (sp guid, IDirectPlayLobbyA**, outer, data, size) */
+    g_eax = (uint32_t)dplay_lobby_create((void**)(uintptr_t)ARG(1));
+    g_esp += 4 + 5 * 4;
+}
+
 /* MUSIC.dll's (XvT: WIN32.dll's) mciSendCommandA (the CD-audio tracks, which this edition
  * plays from XwingCD\music): logged, so a run says what music it asked for. */
 static void shim_mciSendCommandA(void) {
@@ -788,6 +799,8 @@ static native32_shim_t g_shims[] = {
     { "joyGetDevCapsA", shim_joyGetDevCapsA },
     { "joyGetPosEx", shim_joyGetPosEx },
     { "CloseWindow", shim_CloseWindow },
+    { "DPLAYX.dll#1", shim_DirectPlayCreate },
+    { "DPLAYX.dll#4", shim_DirectPlayLobbyCreateA },
     { "GetForegroundWindow", shim_GetForegroundWindow },
     { "ShowWindow", shim_ShowWindow },
     { "CreateWindowExA", shim_CreateWindowExA },
