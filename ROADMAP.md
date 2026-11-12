@@ -11,7 +11,8 @@
 - [ ] A whole campaign played through
 - [x] Multiplayer: the host's own DirectPlay; two machines meet in the lobby and fly a Melee together, in XvT and Balance of Power
 - [x] Multiplayer: a whole match; netlab scenario (scenarios/xvt/lan.sh)
-- [ ] Multiplayer: 3+ players, a player leaving mid-match
+- [x] Multiplayer: three players (three VMs), a team Melee flown together
+- [ ] Multiplayer: a player leaving mid-match, 4+ players
 - [x] Hero GIF
 - [x] Remaster checked in XvT and BoP: scaling, HD textures, texture dump, mod files, virtual stick, sound
 - [ ] A real pad and mouse flying in XvT

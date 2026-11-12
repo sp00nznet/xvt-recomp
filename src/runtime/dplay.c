@@ -126,11 +126,22 @@ enum { W_HELLO = 1, W_WELCOME, W_ADD, W_DEL, W_JOINGROUP, W_LEAVEGROUP, W_DATA }
 typedef struct { DWORD len, type, from, to; } Hdr;
 typedef struct { DPID id; DWORD group; DPID parent; char name[64]; } WPlayer;
 
+/* One message, whole, and one sender at a time: the host's reader threads
+ * forward to a node while the game sends to it, and two threads' header and
+ * payload interleaving on one connection garbled it (three players: the
+ * third was dropped). */
 static void send_on(SOCKET s, DWORD type, DPID from, DPID to, const void* p, DWORD n) {
+    static SRWLOCK one = SRWLOCK_INIT;
     if (s == INVALID_SOCKET) return;
+    char* b = (char*)malloc(sizeof(Hdr) + n);
     Hdr h = { sizeof h + n, type, from, to };
-    send(s, (const char*)&h, sizeof h, 0);
-    if (n) send(s, (const char*)p, (int)n, 0);
+    memcpy(b, &h, sizeof h);
+    if (n) memcpy(b + sizeof h, p, n);
+    AcquireSRWLockExclusive(&one);
+    for (int sent = 0, r; sent < (int)h.len; sent += r)
+        if ((r = send(s, b + sent, (int)h.len - sent, 0)) <= 0) break;
+    ReleaseSRWLockExclusive(&one);
+    free(b);
 }
 /* Out to every other node (the host), or up to the host (a joiner). */
 static void broadcast(DWORD type, DPID from, DPID to, const void* p, DWORD n, int except_node) {
