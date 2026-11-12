@@ -103,7 +103,7 @@ Everything in TIE Fighter's table, and:
 | The 3D hardware mode is switched on at start | `use_3d_hardware1`/`2` and `bilinear1`/`2` in `Config.cfg` (Balance of Power: `config2.cfg`), and a `video.cfg` naming the card, which the launcher would write; F10 switches back to software |
 | A frame the game does not clear starts cleared, depth at the far plane | XvT never clears through the viewport, as a card of the day began each frame cleared. The far plane follows the game's depth test: 1.0 for 1.1's LESS, 0.0 for Balance of Power's GREATER |
 | `SuspendThread` keeps the machine lock | the movie player suspends its decoder thread around every frame; called unlocked, it could catch that thread holding the lock, and the intro hung on its first frame |
-| The music DLL is called by one thread at a time | `WIN32.dll` is not thread-safe; two game threads meeting in it corrupted the heap about one run in four |
+| The CD music is played by the host (`src/runtime/music.c`), from `Music\TrackNN.ogg` with the game folder's `libvorbisfile-3.dll` | the Steam edition's player (`WIN32.dll`) raced the game's stop and play on its own thread, and corrupted the heap about one run in five |
 | DirectPlay is the host's own (`src/runtime/dplay.c`), over TCP port 47700 | Windows' DirectPlay no longer finds sessions between machines (its helper takes the request and never answers), and needs an optional Windows feature. The host provides what XvT uses: the lobby's Connect, players and groups, Send and Receive. The host machine needs port 47700 open |
 | Balance of Power runs in `game\BalanceOfPower` | the Steam launcher starts its executable there; it reads its own `config2.cfg`, `video.cfg` and data |
 
