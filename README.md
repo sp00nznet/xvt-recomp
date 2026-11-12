@@ -35,7 +35,8 @@ resolution.
 address (Config screen, or `ipaddress` in `Config.cfg`), both meet in the
 lobby, pick craft, and fly the same Melee. Tested between two Windows VMs on
 the LAN. Balance of Power online works the same way (its v2.0 lobby, then a Melee).
-Not yet checked: missions flown to the end, more than two players.
+A solo Melee and a two-machine Melee have been played to their debriefs.
+Not yet checked: more than two players, a whole campaign.
 
 ![In flight](docs/screenshots/flight.png)
 ![Craft selection](docs/screenshots/craft.png)

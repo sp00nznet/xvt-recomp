@@ -7,9 +7,11 @@
 - [x] The 3D hardware mode at the window's resolution
 - [x] Balance of Power lifted (its own 2.0 build, 4993 functions, 0 errors); front end, Smacker movies, Training mission 1 in HD 3D
 - [x] Balance of Power campaigns: Spreading the Rebellion, crawl and mission 1
-- [ ] Missions flown to the end; a campaign played through
+- [x] Played through: a solo Melee to its debrief; Balance of Power campaign mission 1 for 12 minutes; a two-machine Melee to its debrief (netlab scenarios/xvt/lan.sh, LONG=1)
+- [ ] A whole campaign played through
 - [x] Multiplayer: the host's own DirectPlay; two machines meet in the lobby and fly a Melee together, in XvT and Balance of Power
-- [ ] Multiplayer: a whole match, 3+ players, a netlab scenario script
+- [x] Multiplayer: a whole match; netlab scenario (scenarios/xvt/lan.sh)
+- [ ] Multiplayer: 3+ players, a player leaving mid-match
 - [x] Hero GIF
 - [x] Remaster checked in XvT and BoP: scaling, HD textures, texture dump, mod files, virtual stick, sound
 - [ ] A real pad and mouse flying in XvT
