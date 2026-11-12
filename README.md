@@ -29,7 +29,13 @@ You supply your own copy of the game. Nothing from it is in this repo.
   Spreading the Rebellion and flies its first mission.
 
 Both draw the game's 3D hardware mode with Direct3D 11 at the window's
-resolution. Not yet checked: multiplayer, and missions flown to the end.
+resolution.
+
+**Multiplayer works between two machines**: one hosts, the other joins by IP
+address (Config screen, or `ipaddress` in `Config.cfg`), both meet in the
+lobby, pick craft, and fly the same Melee. Tested between two Windows VMs on
+the LAN. Not yet checked: missions flown to the end, more than two players,
+Balance of Power online.
 
 ![In flight](docs/screenshots/flight.png)
 ![Craft selection](docs/screenshots/craft.png)
@@ -38,6 +44,8 @@ resolution. Not yet checked: multiplayer, and missions flown to the end.
 ![Melee in the X-Wing](docs/screenshots/melee.png)
 ![Combat Engagement briefing](docs/screenshots/combat_briefing.png)
 ![Balance of Power campaign, mission 1](docs/screenshots/bop_campaign.png)
+![Multiplayer: both players at craft selection](docs/screenshots/mp_craft.png)
+![Multiplayer Melee: the host (left) has the joiner's X-Wing targeted](docs/screenshots/mp_melee.png)
 
 ## The remaster
 
@@ -94,6 +102,7 @@ Everything in TIE Fighter's table, and:
 | A frame the game does not clear starts cleared, depth at the far plane | XvT never clears through the viewport, as a card of the day began each frame cleared. The far plane follows the game's depth test: 1.0 for 1.1's LESS, 0.0 for Balance of Power's GREATER |
 | `SuspendThread` keeps the machine lock | the movie player suspends its decoder thread around every frame; called unlocked, it could catch that thread holding the lock, and the intro hung on its first frame |
 | The music DLL is called by one thread at a time | `WIN32.dll` is not thread-safe; two game threads meeting in it corrupted the heap about one run in four |
+| DirectPlay is the host's own (`src/runtime/dplay.c`), over TCP port 47700 | Windows' DirectPlay no longer finds sessions between machines (its helper takes the request and never answers), and needs an optional Windows feature. The host provides what XvT uses: the lobby's Connect, players and groups, Send and Receive. The host machine needs port 47700 open |
 | Balance of Power runs in `game\BalanceOfPower` | the Steam launcher starts its executable there; it reads its own `config2.cfg`, `video.cfg` and data |
 
 ## Test switches
@@ -101,7 +110,7 @@ Everything in TIE Fighter's table, and:
 As in X-Wing: `--keys` scripts keys, clicks (`click:X:Y`, game pixels), the
 virtual joystick (`N:stick:X:Y`, `N:fire`), `on:NAME` waits for the game to
 open a file, and `N:shot=file.png` takes a screenshot of the game's own frame.
-`--watchdog S` ends a run after S seconds; test runs are muted unless
+`press:X:Y` and `release:X:Y` make a drag. `--watchdog S` ends a run after S seconds; test runs are muted unless
 `--sound`. `docs/flight_script.txt` is the script from the pilot roster to
 Gunnery Training, and works in both hosts.
 

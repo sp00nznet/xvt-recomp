@@ -8,7 +8,8 @@
 - [x] Balance of Power lifted (its own 2.0 build, 4993 functions, 0 errors); front end, Smacker movies, Training mission 1 in HD 3D
 - [x] Balance of Power campaigns: Spreading the Rebellion, crawl and mission 1
 - [ ] Missions flown to the end; a campaign played through
-- [ ] Multiplayer (DirectPlay)
+- [x] Multiplayer: the host's own DirectPlay; two machines meet in the lobby and fly a Melee together
+- [ ] Multiplayer: a whole match, 3+ players, Balance of Power online, a netlab scenario script
 - [x] Hero GIF
 - [x] Remaster checked in XvT and BoP: scaling, HD textures, texture dump, mod files, virtual stick, sound
 - [ ] A real pad and mouse flying in XvT

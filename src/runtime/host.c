@@ -428,7 +428,7 @@ static void shim_DirectDrawCreate(void) {
 /* ---- scripted input (--keys) ---------------------------------------------------
  * "SECONDS:what,..." where what is a key name (esc, enter, space, up, down,
  * left, right, tab, f1..f10, a letter or digit), "click:X:Y" (game pixels,
- * 640x480) or "move:X:Y". A key is held for 150 ms. While a script runs, the
+ * 640x480), "move:X:Y", or "press:X:Y" ... "release:X:Y" for a drag. A key is held for 150 ms. While a script runs, the
  * real keyboard and mouse are not read: only the script reaches the game. */
 typedef struct { DWORD at; int dik, vk, x, y, click, move; char on[64], shot[MAX_PATH]; } step_t;
 
@@ -497,8 +497,8 @@ static void parse_keys(const char* spec) {
             g_steps[g_nsteps++] = st;
             continue;
         }
-        if (!strncmp(what, "click:", 6) || !strncmp(what, "move:", 5)) {
-            st.click = what[0] == 'c';
+        if (!strncmp(what, "click:", 6) || !strncmp(what, "move:", 5) || !strncmp(what, "press:", 6) || !strncmp(what, "release:", 8)) {
+            st.click = what[0] == 'c' ? 1 : what[0] == 'p' ? 2 : what[0] == 'r' ? 3 : 0;
             st.move = 1;
             sscanf(strchr(what, ':') + 1, "%d:%d", &st.x, &st.y);
         } else if (!(st.dik = key_by_name(what, &st.vk))) {
@@ -541,14 +541,20 @@ static DWORD WINAPI keys_thread(LPVOID unused) {
         HWND w = g_game_wnd;
         if (st->move) {
             g_cur_x = st->x, g_cur_y = st->y;
-            if (w) PostMessageA(w, WM_MOUSEMOVE, 0, MAKELPARAM(st->x, st->y));
-            if (st->click) {
+            if (w) PostMessageA(w, WM_MOUSEMOVE, g_button_until - GetTickCount() < 3600000 ? MK_LBUTTON : 0, MAKELPARAM(st->x, st->y));
+            if (st->click == 2) {   /* held until a release step */
+                g_button_until = GetTickCount() + 3600000;
+                if (w) PostMessageA(w, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(st->x, st->y));
+            } else if (st->click == 3) {
+                g_button_until = GetTickCount();
+                if (w) PostMessageA(w, WM_LBUTTONUP, 0, MAKELPARAM(st->x, st->y));
+            } else if (st->click) {
                 g_button_until = GetTickCount() + 150;
                 if (w) PostMessageA(w, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(st->x, st->y));
                 Sleep(150);
                 if (w) PostMessageA(w, WM_LBUTTONUP, 0, MAKELPARAM(st->x, st->y));
             }
-            printf("[keys] %.1fs %s %d,%d\n", st->at / 1000.0, st->click ? "click" : "move", st->x, st->y);
+            printf("[keys] %.1fs %s %d,%d\n", st->at / 1000.0, st->click == 1 ? "click" : st->click == 2 ? "press" : st->click == 3 ? "release" : "move", st->x, st->y);
         } else {
             g_key_until[st->dik] = g_vk_until[st->vk & 0xFF] = GetTickCount() + 150;
             evq_push(st->dik, 0x80);
