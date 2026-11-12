@@ -34,8 +34,8 @@ resolution.
 **Multiplayer works between two machines**: one hosts, the other joins by IP
 address (Config screen, or `ipaddress` in `Config.cfg`), both meet in the
 lobby, pick craft, and fly the same Melee. Tested between two Windows VMs on
-the LAN. Not yet checked: missions flown to the end, more than two players,
-Balance of Power online.
+the LAN. Balance of Power online works the same way (its v2.0 lobby, then a Melee).
+Not yet checked: missions flown to the end, more than two players.
 
 ![In flight](docs/screenshots/flight.png)
 ![Craft selection](docs/screenshots/craft.png)
@@ -46,6 +46,7 @@ Balance of Power online.
 ![Balance of Power campaign, mission 1](docs/screenshots/bop_campaign.png)
 ![Multiplayer: both players at craft selection](docs/screenshots/mp_craft.png)
 ![Multiplayer Melee: the host (left) has the joiner's X-Wing targeted](docs/screenshots/mp_melee.png)
+![Balance of Power multiplayer Melee, host and joiner](docs/screenshots/bop_mp_melee.png)
 
 ## The remaster
 
