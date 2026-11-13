@@ -742,8 +742,9 @@ void gpu_present(void) {
     IDXGISwapChain_Present(g_sc, 0, 0);   /* the game paces itself (vblank, timers); a vsync wait per palette fade stalled its loading */
     {   static long frames, draws3d, frames3d;
         frames++, draws3d += g_3d_draws, frames3d += g_3d_draws > 0;
+        if (frames3d == 1 && g_3d_draws > 0) fprintf(stderr, "[gpu] first 3D frame (frame %ld)" "\n", frames);
         g_since3d = g_3d_draws > 0 ? 0 : g_since3d + 1;
-        if (frames % 600 == 0) {
+        if (frames % 300 == 0) {
             int nt = 0;
             for (int i = 1; i < 4096; i++) nt += g_tex[i].srv != NULL;
             fprintf(stderr, "[gpu] %ld frames: %ld with 3D, %ld draws, %d textures\n", frames, frames3d, draws3d, nt);
